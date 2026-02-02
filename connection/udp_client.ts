@@ -22,11 +22,11 @@ export const sendUDP = async (msg: string) => {
     await datagramConn.send(encoder.encode(msg), remoteAddress);
 
     const decoder = new TextDecoder();
-    const result = await tryCatch(datagramConn.receive());
-    if (result.Ok) {
-        return decoder.decode(result.Ok[0]);
+    const [response, error] = await tryCatch(datagramConn.receive());
+    if (response) {
+        return decoder.decode(response[0]);
     }
 
-    console.error("ERROR=" + result.Error);
+    console.error("ERROR=" + error);
     datagramConn.close();
 };

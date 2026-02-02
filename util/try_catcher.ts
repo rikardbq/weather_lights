@@ -1,22 +1,12 @@
-type Ok<T> = T;
-type Error<E> = E | unknown;
-type Result<T, E> = {
-    Ok: Ok<T> | null;
-    Error: Error<E> | null;
-};
+type Result<T, E = unknown> = [T, null] | [null, E];
 
-export const tryCatch: <T, E>(arg: Promise<T>) => Promise<Result<T, E>> = async <T, E>(
+export const tryCatch = async <T, E = unknown>(
     arg: Promise<T>,
-) => {
+): Promise<Result<T, E>> => {
     try {
-        return {
-            Ok: await arg,
-            Error: null,
-        };
-    } catch (err: Error<E>) {
-        return {
-            Ok: null,
-            Error: err,
-        };
+        const res = await arg;
+        return [res, null];
+    } catch (err) {
+        return [null, err as E];
     }
 };

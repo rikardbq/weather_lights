@@ -7,8 +7,10 @@ export const sendTCP = async (msg: string, connOpts: Deno.ConnectOptions) => {
     await tcpConn.write(encoder.encode(msg));
     console.log("COMMAND=" + msg);
 
-    const result = await tryCatch(tcpConn.write(encoder.encode(msg)));
-    if (result.Ok) {
+    const [response, error] = await tryCatch(
+        tcpConn.write(encoder.encode(msg)),
+    );
+    if (response) {
         const buf = new Uint8Array(100);
         await tcpConn.read(buf);
         const decoder = new TextDecoder();
@@ -16,9 +18,9 @@ export const sendTCP = async (msg: string, connOpts: Deno.ConnectOptions) => {
         tcpConn.close();
         console.log("COMMAND_RESPONSE=" + response);
 
-        return result.Ok;
+        return response;
     }
 
     tcpConn.close();
-    console.error("ERROR=" + result.Error);
+    console.error("ERROR=" + error);
 };
